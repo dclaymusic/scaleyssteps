@@ -1,0 +1,214 @@
+@font-face {
+    font-family: 'Andika';
+    src: url(andika.ttf);
+}
+
+html {
+    background-color: #ffffff; 
+    user-select: none;
+}
+
+body {
+    line-height: 16px;
+    user-select: none;
+    display: flex;
+    margin: 0px;
+    padding: 0px; 
+    overflow:hidden; 
+    font-family: 'Andika'; 
+    font-weight: bold;     
+}
+
+button {
+    font-family: 'Andika';
+}
+
+#gamefoot {
+    visibility: hidden;
+}
+
+footer {
+    text-align: center;
+    background-color: #1f1f1f;
+    color: white;
+    min-width: 100px;
+    max-width: 100px;
+    padding: 10px 20px;
+    min-height: 580px;
+    max-height: 580px;
+}
+
+canvas, main {
+    /* background-color: #888888; */
+    margin: 0px;
+    padding: 0px;
+    width: 600px;
+    height: 600px;
+}
+
+
+#loadscreen {
+    width: 740px;
+    height: 600px;
+    background-image: url("img/title.png");
+    position: fixed;
+    top: 0;
+    line-height: 30px;
+    background-size: 100% 100%;
+    text-align: center;
+}
+
+#loaddescription {
+    margin-top: 40%;
+    padding-left: 28%;
+    padding-right: 28%;
+}
+
+#loadbarfull, #loadbarloading {
+    /* all px relative to loadscreen */
+    position: relative;
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: #f0ebf0;
+    height: 30px;
+    width: 200px;
+    margin: auto;
+
+}
+
+#loadbarfull {
+    box-shadow: 5px 5px rgba(0,0,0,0.5);
+}
+
+#loadbarloading {
+    top: -34px;
+    margin-bottom: -30px;
+    background-color: #ff0000;
+}
+
+#loadscreen p{
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#gamefoot {
+    height: 580px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    
+}
+
+.hoverimages {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#gamefoot img {
+    margin: 0;
+    cursor: pointer;
+}
+
+#startoverimg, #randomimg, #infoimg, #letterimg, #solfegeimg, #playbutton {
+    width: 45px;
+}
+
+#noteimg {
+    width: 90px;
+}
+
+#notetext {
+    line-height: 30px;
+}
+
+#hnote {
+    width: 80px;
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#gamefoot p {
+ margin-top: -5px;
+ margin-bottom: 0px;
+}
+
+#playtext, #shuffletext {
+    line-height: 30px;
+}
+
+
+#playtoggle { 
+    margin-bottom: -10px;
+}
+
+#displayselect {
+    margin-top: -10px;
+}
+
+#displayselect div {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0px;
+    background-color: white;
+}
+/* 
+#soundselect {
+    margin-bottom: 10px;
+} */
+
+#soundselect div {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0px;
+    background-color: white;
+}
+
+#soundselect img {
+   width: 100%;
+}
+
+#infoscreen {
+    width: 600px;
+    height: 600px;
+    background-image: url("img/infoscreen.png");
+    position: fixed;
+    top: 0;
+    line-height: 30px;
+    background-size: 100% 100%;
+    text-align: center;
+    visibility: hidden;
+}
+
+#infoscreen ul {
+    font-size: 0.9em;
+    margin-top: 44%;
+    padding-left: 30%;
+    padding-right: 5%;
+    text-align: left;
+}
+
+#infoscreen li {
+    line-height: 1.3em;
+    padding-top: 10px;
+}
+
+#infoscreen .bold {
+    font-size: 1.1em;
+    text-decoration: underline;
+    font-weight: 900;
+}
+
+#startover {
+    margin-top: -10px;
+}

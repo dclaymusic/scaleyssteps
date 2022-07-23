@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="style.css">
+<title>Scaley's Steps</title>
+<script src="snd.js"></script>
+<script src="start.js"></script>
+<script src="click.js"></script>
+<script src="tile.js"></script>
+<script src="song.js"></script>
+<script src="display.js"></script>
+<script type="text/javascript">
+
+        var hasStarted = false;
+        var infoWindow = false;
+        var isClickable = true;
+        var isPlaying = false;
+
+        const scale = 2;
+        const w = 600;
+        const h = 600;
+        const width = 600*scale;
+        const height = 600*scale;
+        const tileW = 90;
+        const tileH = 90;
+        const radians = Math.PI / 180;
+        const fadeDelay = 0.02;
+
+        const numberOfSounds = 41;
+        var currentSoundSet = 0;
+
+        //initizalize scale information
+        var scalePositions = [true, true, false, true, false, true, false, true, true, false, true, false, true];
+        var notes = []; 
+
+        const bufferH = tileH*0.3;
+        const offsetX = 200; //offset for note icons
+        const marginX = 280; //start point of middle window
+        const tileMax = 1.2; //tile animation size
+        let lineCenter = 5; //so that dividing lines are centered
+        let tileScale = 0.9;
+
+        var ctx = null;
+        var currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+        var currentFrameTime;
+        var mousePos = [];
+        var song = [];
+
+        //for timeline
+        var isLetters = true;
+        var loadedSound = false;
+        var displayRow;
+        var isInfoScreen = false;
+        var showingIntervals = true;
+        
+        const audioCtx = new AudioContext();
+
+        loads01(); loads02(); loads03(); loads04(); loads05(); loads06(); loads07(); loads08(); loads09(); loads10(); loads11(); loads12(); loads13(); 
+        loadh01(); loadh02(); loadh03(); loadh04(); loadh05(); loadh06(); loadh07(); loadh08(); loadh09(); loadh10(); loadh11(); loadh12(); loadh13(); 
+        loadk01(); loadk02(); loadk03(); loadk04(); loadk05(); loadk06(); loadk07(); loadk08(); loadk09(); loadk10(); loadk11(); loadk12(); loadk13(); 
+        loadclick(); loadshuffle();
+
+        //loading tilesets
+        var tileset = null, tilesetURL = "img/tiles.png",  tilesetLoaded = false;
+
+        var tileTypes = {
+
+            0: { }, //nothing at the moment
+
+            //for circle
+            1: { sprite:[{x:110*13, y:110*0, w:110, h:110}]}, //C
+            2: { sprite:[{x:110*14, y:110*7, w:110, h:110}]}, //Db
+            3: { sprite:[{x:110*13, y:110*2, w:110, h:110}]}, //D
+            4: { sprite:[{x:110*13, y:110*3, w:110, h:110}]}, //D#
+            5: { sprite:[{x:110*14, y:110*6, w:110, h:110}]}, //Eb
+            6: { sprite:[{x:110*13, y:110*4, w:110, h:110}]}, //E
+            7: { sprite:[{x:110*13, y:110*5, w:110, h:110}]}, //F
+            8: { sprite:[{x:110*13, y:110*6, w:110, h:110}]}, //F#
+            9: { sprite:[{x:110*14, y:110*5, w:110, h:110}]}, //Gb
+            10: { sprite:[{x:110*13, y:110*7, w:110, h:110}]}, //G
+            11: { sprite:[{x:110*13, y:110*8, w:110, h:110}]}, //G#
+            12: { sprite:[{x:110*14, y:110*4, w:110, h:110}]}, //Ab
+            13: { sprite:[{x:110*14, y:110*0, w:110, h:110}]}, //A
+            14: { sprite:[{x:110*14, y:110*1, w:110, h:110}]}, //A#
+            15: { sprite:[{x:110*14, y:110*3, w:110, h:110}]}, //Bb
+            16: { sprite:[{x:110*14, y:110*2, w:110, h:110}]}, //B
+
+            17: { sprite:[{x:110*2, y:110*8, w:110, h:110}]}, //down arrow black
+            18: { sprite:[{x:110*3, y:110*8, w:110, h:110}]}, //up arrow black
+
+            19: { sprite:[{x:110*0, y:110*8, w:110, h:110}]}, //down arrow white
+            20: { sprite:[{x:110*1, y:110*8, w:110, h:110}]}, //up arrow white
+
+            21: { sprite:[{x:110*15, y:110*0, w:110, h:110}]}, //do
+            22: { sprite:[{x:110*16, y:110*7, w:110, h:110}]}, //ra
+            23: { sprite:[{x:110*15, y:110*2, w:110, h:110}]}, //re
+            24: { sprite:[{x:110*15, y:110*3, w:110, h:110}]}, //ri
+            25: { sprite:[{x:110*16, y:110*6, w:110, h:110}]}, //me
+            26: { sprite:[{x:110*15, y:110*4, w:110, h:110}]}, //mi
+            27: { sprite:[{x:110*15, y:110*5, w:110, h:110}]}, //fa
+            28: { sprite:[{x:110*15, y:110*6, w:110, h:110}]}, //fi
+            29: { sprite:[{x:110*16, y:110*5, w:110, h:110}]}, //se
+            30: { sprite:[{x:110*15, y:110*7, w:110, h:110}]}, //sol
+            31: { sprite:[{x:110*15, y:110*8, w:110, h:110}]}, //si
+            32: { sprite:[{x:110*16, y:110*4, w:110, h:110}]}, //le
+            33: { sprite:[{x:110*16, y:110*0, w:110, h:110}]}, //la
+            34: { sprite:[{x:110*16, y:110*1, w:110, h:110}]}, //li
+            35: { sprite:[{x:110*16, y:110*3, w:110, h:110}]}, //te
+            36: { sprite:[{x:110*16, y:110*2, w:110, h:110}]}, //ti
+
+            37: { sprite:[{x:110*8, y:110*0, w:220, h:110}]}, //note
+
+            38: { sprite:[{x:110*8, y:110*8, w:550, h:110}]}, //m2
+            39: { sprite:[{x:110*8, y:110*6, w:550, h:110}]}, //M2
+            40: { sprite:[{x:110*8, y:110*7, w:550, h:110}]}, //m3
+            41: { sprite:[{x:110*8, y:110*5, w:550, h:110}]} //M3
+
+
+        };
+
+        //Viewport Scanning
+        var viewport = { screen : [0,0] };
+        window.onload = function()
+        {
+            ctx = document.getElementById('canvas').getContext("2d");
+            requestAnimationFrame(drawGame);
+            ctx.font = "bold 10pt sans-serif";
+
+            //window.addEventListener('mousemove', function(e) { getHoverOver(e) });
+            window.addEventListener('click', function(e) { clickHandler(e) });
+            window.addEventListener('mousemove', function(e) { mousePos = getHoverOver(e); });
+            
+            viewport.screen = [document.getElementById('canvas').width,
+                document.getElementById('canvas').height];
+
+            tileset = new Image();
+            tileset.onerror = function()
+            { ctx = null; alert("Failed loding tileset."); };
+            tileset.onload = function() { tilesetLoaded = true; }
+            tileset.src = tilesetURL;
+            
+        };
+
+        //create one pitch per scale degree, major scale
+        notes = [
+            new Tile(8,0),
+            new Tile(7,1),
+            new Tile(6,3),
+            new Tile(5,5),
+            new Tile(4,7),
+            new Tile(3,8),
+            new Tile(2,10),
+            new Tile(1,12)
+        ];
+
+        //game loop
+        function drawGame()
+        {
+            if(ctx==null) { return; }
+
+            currentFrameTime = Date.now();
+            var timeElapsed = currentFrameTime - lastFrameTime;
+            var sec = Math.floor(Date.now()/1000);
+
+            if(sec!=currentSecond)
+            {
+                currentSecond = sec;
+                framesLastSecond = frameCount;
+                frameCount = 1;
+            }
+            else { frameCount++; }
+
+            if(hasStarted) //app is playing
+            {
+                drawIntervals();
+
+                for(i = 0; i < song.length; i++)
+                { song[i].draw(); }
+
+                drawSidebar();
+                drawPianoKeys();
+            
+                for(i = 0; i < notes.length; i++)
+                { notes[i].draw(); }
+
+                if(loadedSound == true) { updateLoadedSound(); }
+
+            }
+            else if(!hasStarted) //loading sounds
+            { loadbarHandler(); }
+            
+            //frameRate();
+            lastFrameTime = currentFrameTime;
+            requestAnimationFrame(drawGame);
+
+        }
+
+
+</script>
+
+</head>
+
+<body id="body">
+    <main id="main">
+        <canvas id="canvas" width="1200" height="1200"></canvas>
+        
+        <div id="loadscreen">
+            <p id="loaddescription">Move the pitches up and down to make your own scale. Add notes to the steps to hear your scale in action!</p>
+            <div id="loadbarfull"> </div>
+            <div id="loadbarloading"></div>
+            <p id="loadtext">Sounds are loading...</p>
+        </div>
+
+        <div id="infoscreen">
+            <div id="infotext">
+                <ul>
+                    <li>Click on a pitch to the left to hear it, or click on the arrows to move the pitches of your scale up and down.</li>
+                    <li>Click <span class="bold">Instrument</span> to change how your pitches sound, or <span class="bold">Display</span> to change how your pitches are named.</li>
+                    <li>Click <span class="bold">Add Note</span> to start composing, then click on any step to add that note to your song.</li>
+                    <li>Click <span class="bold">Shuffle Notes</span> to create a song for you, or click <span class="bold">Clear Notes</span> to start over. You can also click on a note in your song to erase it.</li>
+                    <li>Click <span class="bold">Play</span> to hear your song, or to hear your scale if you haven't added any notes!</li>
+                    <li>Open and close this window by clicking <span class="bold">Info.</span></li>
+                </ul>
+
+            </div>
+        </div>
+
+    </main> 
+    <footer>
+        <div id="gamefoot">
+            <div id="playtoggle">
+                <img id="playbutton" src="img/playimg.png" onclick="togglePlay()">
+                <p id="playtext">Play</p>
+            </div>
+
+            <div id="soundselect">
+                <div id="belldiv">
+                    <img id="bell" src="img/imgbell2.png" onclick="toggleSounds(0)">
+                </div>
+                <div id="harpdiv">
+                    <img id="harp" src="img/imgharp.png" onclick="toggleSounds(1)">
+                </div>
+                <div id="keydiv">
+                    <img id="key" src="img/imgkey.png" onclick="toggleSounds(2)">
+                </div>
+                <p id="speedtext">Instrument</p>
+            </div>
+
+            <div id="displayselect">
+                <div id="letters">
+                    <img id="letterimg" src="img/letter2.png" onclick="toggleDisplay(0)">
+                </div>
+                <div id="solfege">
+                    <img id="solfegeimg" src="img/solfege1.png" onclick="toggleDisplay(1)">
+                </div>
+                <p id="displaytext">Display</p>
+            </div>
+
+            <div id="noteselect">
+                <img id="noteimg" src="img/note.png" onclick="pickSnd()">
+                <p id="notetext">Add Note</p>
+            </div>
+
+            <div id="randomselect">
+                <img id="randomimg" src="img/randimg.png" onclick="shuffleSounds()">
+                <p id="shuffletext">Shuffle Notes</p>
+            </div>
+
+            <div id="startover">
+                <img id="startoverimg" src="img/clearimg.png" onclick="clearAllSounds()">
+                <p>Clear Notes</p>
+            </div>
+
+            <div id="info">
+                <img id="infoimg" src="img/infoimg.png" onclick="toggleInfoScreen()"> 
+                <p>Info</p>
+            </div>
+
+            <img id="hnote" src="img/hnote.png">
+        </div>
+    </footer>
+</body>
+</html>
